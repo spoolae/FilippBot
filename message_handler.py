@@ -1,6 +1,6 @@
 import json
 import random
-import difflib
+from fuzzywuzzy import fuzz
 
 def load_responses(filename):
     try:
@@ -9,22 +9,28 @@ def load_responses(filename):
     except FileNotFoundError:
         return {}
 
-def get_closest_match(word, word_list):
-    if len(word) >= 10:
-        cutoff = 0.1
-    elif len(word) >= 5:
-        cutoff = 0.2
-    else:
-        cutoff = 0.8
+def fuzzy_match(word, word_list):
+    max_similarity = 0
+    best_match = None
 
-    matches = difflib.get_close_matches(word, word_list, cutoff=cutoff)
-    if matches:
-        return matches[0]
+    for candidate in word_list:
+        similarity = fuzz.ratio(word, candidate)
+        if similarity > max_similarity:
+            max_similarity = similarity
+            best_match = candidate
+
+    # Уменьшаем порог сходства для более широкого поиска
+    your_threshold = 70  # Уменьшенный порог сходства
+    if max_similarity >= your_threshold:
+        return best_match
     return None
 
 def handle_message(message_text):
     responses = load_responses('responses.json')
     message_text_lower = message_text.lower()
+
+    # Список для хранения всех совпадений
+    all_matches = []
 
     for keyword, response_list in responses.items():
         keyword_list = [kw.lower() for kw in keyword.split(', ')]
@@ -35,14 +41,18 @@ def handle_message(message_text):
                 response = add_random_error(response)
                 return response
 
-    # Если ключевое слово не найдено, попробуйте найти ближайшее совпадение
-    for keyword, response_list in responses.items():
-        closest_match = get_closest_match(message_text_lower, keyword_list)
+        # Если ключевое слово не найдено, добавляем ближайшее совпадение в список
+        closest_match = fuzzy_match(message_text_lower, keyword_list)
         if closest_match is not None:
-            response = random.choice(response_list)
-            response = add_lowercase_start(response)
-            response = add_random_error(response)
-            return response
+            all_matches.append((closest_match, response_list))
+
+    # Если есть ближайшие совпадения, выберите случайный ответ из них
+    if all_matches:
+        closest_match, response_list = random.choice(all_matches)
+        response = random.choice(response_list)
+        response = add_lowercase_start(response)
+        response = add_random_error(response)
+        return response
 
     # Если ни ключевое слово, ни ближайшее совпадение не найдены, вернуть случайное сообщение
     default_response = random.choice(responses['default_responses'])
@@ -58,8 +68,8 @@ def add_lowercase_start(text):
     return text
 
 def add_random_error(text):
-    # Добавление случайной ошибки в слове с вероятностью 15%
-    if random.random() < 0.15:
+    # Добавление случайной ошибки в слове с вероятностью 7.5%
+    if random.random() < 0.075:
         random_index = random.randint(0, len(text) - 1)
         random_char = random.choice('абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
         text = text[:random_index] + random_char + text[random_index + 1:]
