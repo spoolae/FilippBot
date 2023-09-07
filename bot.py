@@ -1,26 +1,33 @@
 import logging
 from aiogram import Bot, Dispatcher, executor, types
-
-# Импортируем токен из файла config.py
 from config import TELEGRAM_TOKEN
+from user_data_manager import UserDataManager
+from message_handler import handle_message
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize bot and dispatcher
 bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher(bot)
+user_data_manager = UserDataManager()
 
-@dp.message_handler(commands=['start', 'help'])
+@dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
-    """
-    This handler will be called when user sends `/start` or `/help` command
-    """
-    await message.reply("Hi!\nI'm EchoBot!\nPowered by aiogram.")
+    user_id = message.from_user.id
+    user_data_manager.handle_start_command(user_id, message.from_user)
+
+    await message.reply("Welcome!\nYour data has been saved.")
+
+@dp.message_handler(commands=['info'])
+async def get_user_info(message: types.Message):
+    user_id = message.from_user.id
+    info_message = user_data_manager.get_user_info(user_id)
+    
+    await message.reply(info_message)
 
 @dp.message_handler()
-async def echo(message: types.Message):
-    await message.answer(message.text)
+async def process_message(message: types.Message):
+    response = handle_message(message.text)
+    await message.reply(response)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
