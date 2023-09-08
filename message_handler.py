@@ -14,6 +14,9 @@ def handle_message(message_text):
     responses = load_responses('responses.json')
     message_text_lower = message_text.lower()
 
+    # Инициализация переменной response_type
+    response_type = "text"
+
     # Список для хранения всех совпадений
     all_matches = []
 
@@ -22,7 +25,7 @@ def handle_message(message_text):
         for kw in keyword_list:
             if kw in message_text_lower:
                 response_type = random.choice(["text", "sticker"])
-                response_list = response_data.get(response_type, [])  # Получить ответы указанного типа или пустой список, если типа нет
+                response_list = response_data.get(response_type, [])
                 if response_list:
                     response = random.choice(response_list)
                     response = add_lowercase_start(response)
@@ -38,20 +41,23 @@ def handle_message(message_text):
     if all_matches:
         closest_match, response_data = random.choice(all_matches)
         response_type = random.choice(["text", "sticker"])
-        response_list = response_data.get(response_type, [])  # Получить ответы указанного типа или пустой список, если типа нет
+        response_list = response_data.get(response_type, [])
         if response_list:
             response = random.choice(response_list)
             response = add_lowercase_start(response)
             response = add_random_error(response)
             return response, response_type == "sticker"
 
-    # Если ни ключевое слово, ни ближайшее совпадение не найдены, вернуть случайное сообщение
+    # Если ни ключевое слово, ни ближайшее совпадение не найдены
+    # Выберите ответ другого типа
+    other_response_type = "sticker" if response_type == "text" else "text"
     default_response_data = responses['default_responses']
-    response_type = random.choice(["text", "sticker"])
-    response_list = default_response_data.get(response_type, [])  # Получить ответы указанного типа или пустой список, если типа нет
+    response_list = default_response_data.get(other_response_type, [])
     if response_list:
         response = random.choice(response_list)
         response = add_lowercase_start(response)
         response = add_random_error(response)
+        return response, other_response_type == "sticker"
 
-    return response, response_type == "sticker"
+    # Если даже другой тип ответа отсутствует, вернуть пустую строку
+    return "Сори, я сломался...", False
