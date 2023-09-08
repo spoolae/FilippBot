@@ -22,11 +22,3 @@ def add_lowercase_start(text):
     if random.random() < 0.1:
         text = text.lower()
     return text
-
-def add_random_error(text):
-    # Добавление случайной ошибки в слове с вероятностью 2.5%
-    if random.random() < 0.025:
-        random_index = random.randint(0, len(text) - 1)
-        random_char = random.choice('абвгдежзийклмнопрстуфхцчшщъьэюя')
-        text = text[:random_index] + random_char + text[random_index + 1:]
-    return text

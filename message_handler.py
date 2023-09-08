@@ -1,7 +1,7 @@
 import json
 import random
 from fuzzywuzzy import fuzz
-from message_handler_functions import fuzzy_match, add_lowercase_start, add_random_error
+from message_handler_functions import fuzzy_match, add_lowercase_start
 
 def load_responses(filename):
     try:
@@ -29,7 +29,6 @@ def handle_message(message_text):
                 if response_list:
                     response = random.choice(response_list)
                     response = add_lowercase_start(response)
-                    response = add_random_error(response)
                     return response, response_type == "sticker"
 
         # Если ключевое слово не найдено, добавляем ближайшее совпадение в список
@@ -45,7 +44,6 @@ def handle_message(message_text):
         if response_list:
             response = random.choice(response_list)
             response = add_lowercase_start(response)
-            response = add_random_error(response)
             return response, response_type == "sticker"
 
     # Если ни ключевое слово, ни ближайшее совпадение не найдены
@@ -56,7 +54,6 @@ def handle_message(message_text):
     if response_list:
         response = random.choice(response_list)
         response = add_lowercase_start(response)
-        response = add_random_error(response)
         return response, other_response_type == "sticker"
 
     # Если даже другой тип ответа отсутствует, вернуть пустую строку
