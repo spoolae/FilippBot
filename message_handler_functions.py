@@ -12,7 +12,7 @@ def fuzzy_match(word, word_list):
             best_match = candidate
 
     # Уменьшаем порог сходства для более широкого поиска
-    your_threshold = 70  # Уменьшенный порог сходства
+    your_threshold = 65  # Уменьшенный порог сходства
     if max_similarity >= your_threshold:
         return best_match
     return None

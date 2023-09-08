@@ -24,7 +24,7 @@ def handle_message(message_text):
         keyword_list = [kw.lower() for kw in keyword.split(', ')]
         for kw in keyword_list:
             if kw in message_text_lower:
-                response_type = random.choice(["text", "sticker"])
+                response_type = random.choices(["text", "sticker"], [len(response_data.get("text", [])), len(response_data.get("sticker", []))])[0]
                 response_list = response_data.get(response_type, [])
                 if response_list:
                     response = random.choice(response_list)
@@ -40,7 +40,7 @@ def handle_message(message_text):
     # Если есть ближайшие совпадения, выберите случайный ответ из них
     if all_matches:
         closest_match, response_data = random.choice(all_matches)
-        response_type = random.choice(["text", "sticker"])
+        response_type = random.choices(["text", "sticker"], [len(response_data.get("text", [])), len(response_data.get("sticker", []))])[0]
         response_list = response_data.get(response_type, [])
         if response_list:
             response = random.choice(response_list)
