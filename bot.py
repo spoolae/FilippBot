@@ -26,8 +26,12 @@ async def get_user_info(message: types.Message):
 
 @dp.message_handler()
 async def process_message(message: types.Message):
-    response = handle_message(message.text)
-    await message.reply(response)
+    response, is_sticker = handle_message(message.text)
+    
+    if is_sticker:
+        await message.reply_sticker(response)
+    else:
+        await message.reply(response)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
