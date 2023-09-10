@@ -16,9 +16,3 @@ def fuzzy_match(word, word_list):
     if max_similarity >= your_threshold:
         return best_match
     return None
-
-def add_lowercase_start(text):
-    # Добавление случайного начала сообщения с маленькой буквы с вероятностью 10%
-    if random.random() < 0.1:
-        text = text.lower()
-    return text

@@ -1,7 +1,7 @@
 import json
 import random
 from fuzzywuzzy import fuzz
-from message_handler_functions import fuzzy_match, add_lowercase_start
+from message_handler_functions import fuzzy_match
 
 def load_responses(filename):
     try:
@@ -28,7 +28,6 @@ def handle_message(message_text):
                 response_list = response_data.get(response_type, [])
                 if response_list:
                     response = random.choice(response_list)
-                    response = add_lowercase_start(response)
                     return response, response_type == "sticker"
 
         # Если ключевое слово не найдено, добавляем ближайшее совпадение в список
@@ -43,18 +42,17 @@ def handle_message(message_text):
         response_list = response_data.get(response_type, [])
         if response_list:
             response = random.choice(response_list)
-            response = add_lowercase_start(response)
             return response, response_type == "sticker"
 
     # Если ни ключевое слово, ни ближайшее совпадение не найдены
     # Выберите ответ другого типа
-    other_response_type = "sticker" if response_type == "text" else "text"
-    default_response_data = responses['default_responses']
-    response_list = default_response_data.get(other_response_type, [])
+
+    default_responses = responses.get("default_responses", {})
+    response_type = random.choices(["text", "sticker"], [len(default_responses.get("text", [])), len(default_responses.get("sticker", []))])[0]
+    response_list = default_responses.get(response_type, [])
     if response_list:
         response = random.choice(response_list)
-        response = add_lowercase_start(response)
-        return response, other_response_type == "sticker"
+        return response, response_type == "sticker"
 
     # Если даже другой тип ответа отсутствует, вернуть пустую строку
     return "Сори, я сломался...", False
