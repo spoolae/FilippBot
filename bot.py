@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import random
 from aiogram import Bot, Dispatcher, executor, types
 from config import TELEGRAM_TOKEN
 from user_data_manager import UserDataManager
@@ -29,8 +31,17 @@ async def process_message(message: types.Message):
     response, is_sticker = handle_message(message.text)
     
     if is_sticker:
+        random_delay = random.uniform(0.5, 3.0)
+        await bot.send_chat_action(message.chat.id, "choose_sticker")
+        await asyncio.sleep(random_delay)
         await message.reply_sticker(response)
+
     else:
+        await bot.send_chat_action(message.chat.id, "typing")
+        message_length = len(message.text)
+        delay_seconds = 0.5 + (0.1 * message_length)
+        random_delay = random.uniform(delay_seconds - 0.1, delay_seconds + 0.1)
+        await asyncio.sleep(random_delay)
         await message.reply(response)
 
 if __name__ == '__main__':
